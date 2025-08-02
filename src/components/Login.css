@@ -1,0 +1,125 @@
+body {
+  background: #f5f6fa;
+
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0f7fa 0%, #43a047 60%, #7e57c2 100%);
+}
+
+.login-card {
+  background: #f8fafc;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(67,160,71,0.12), 0 2px 8px rgba(126,87,194,0.08);
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeIn 0.7s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-button {
+  background: linear-gradient(90deg, #43a047 60%, #7e57c2 100%);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: background 0.2s;
+  font-size: 1.1rem;
+  padding: 10px 0;
+  box-shadow: 0 2px 8px rgba(67,160,71,0.08);
+}
+.login-button:disabled {
+  background: #b2dfdb;
+  color: #fff;
+}
+.login-button:hover {
+  background: linear-gradient(90deg, #388e3c 60%, #7e57c2 100%);
+}
+
+.form-group label {
+  color: #43a047;
+  font-weight: 600;
+}
+
+.demo-section {
+  margin-top: 18px;
+  text-align: center;
+}
+.demo-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.demo-btn {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.08);
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.demo-btn.admin {
+  background: #7e57c2;
+}
+.demo-btn.usuario {
+  background: #43a047;
+}
+.demo-btn.medico {
+  background: #26c6da;
+}
+.demo-btn:hover {
+  background: #5e35b1;
+}
+
+
+
+.login-footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 1rem;
+  color: #7e57c2;
+}
+
+.link-button {
+  background: none;
+  color: #7e57c2;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+}
+
+.link-button:hover {
+  color: #43a047;
+}
+
+@media (max-width: 600px) {
+  .login-card {
+    padding: 16px 8px;
+    max-width: 98vw;
+  }
+  .demo-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+

@@ -1,0 +1,498 @@
+/* Recomendações Médicas Styles */
+.recomendacoes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Carregando */
+.carregando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.carregando h2 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.carregando p {
+  color: #666;
+}
+
+/* Header */
+.recomendacoes-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.recomendacoes-header h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-voltar {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-voltar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+}
+
+/* Seções */
+.secao-recomendacoes, .secao-especialistas, .secao-dicas {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.secao-recomendacoes h2, .secao-especialistas h2, .secao-dicas h2 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Recomendações */
+.recomendacoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.recomendacao-card {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-left: 5px solid var(--cor-prioridade);
+  transition: all 0.3s ease;
+}
+
+.recomendacao-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.recomendacao-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.recomendacao-icone {
+  font-size: 2rem;
+  background: var(--cor-prioridade);
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recomendacao-info {
+  flex: 1;
+}
+
+.recomendacao-info h3 {
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.recomendacao-categoria {
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.prioridade-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+}
+
+.prioridade-badge.alta {
+  background: #dc3545;
+}
+
+.prioridade-badge.média {
+  background: #ffc107;
+  color: #333;
+}
+
+.prioridade-badge.baixa {
+  background: #28a745;
+}
+
+.recomendacao-descricao {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.recomendacao-prazo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+/* Especialistas */
+.especialistas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.filtro-especialidade {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filtro-especialidade:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.especialistas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.especialista-card {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.especialista-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.especialista-foto {
+  font-size: 4rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.especialista-info h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.especialista-especialidade {
+  color: #667eea;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.especialista-crm {
+  color: #666;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.especialista-avaliacao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.estrelas {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.experiencia {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.especialista-detalhes {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.especialista-detalhes p {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.especialista-detalhes strong {
+  color: #495057;
+}
+
+.especialista-acoes {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-agendar {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-agendar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+.btn-contatar {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+}
+
+.btn-contatar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
+}
+
+/* Dicas de Saúde */
+.dicas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.dica-card {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.dica-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.dica-icone {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.dica-card h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.dica-card p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .recomendacoes-container {
+    padding: 1rem;
+  }
+  
+  .recomendacoes-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .recomendacoes-header h1 {
+    font-size: 2rem;
+  }
+  
+  .secao-recomendacoes, .secao-especialistas, .secao-dicas {
+    padding: 1.5rem;
+  }
+  
+  .recomendacoes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .especialistas-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .especialistas-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .especialista-acoes {
+    flex-direction: column;
+  }
+  
+  .dicas-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recomendacao-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+}
+
+/* Animações */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recomendacao-card, .especialista-card, .dica-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.recomendacao-card:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+.especialista-card:nth-child(odd) {
+  animation-delay: 0.2s;
+}
+
+/* Estados especiais */
+.recomendacao-card.alta {
+  --cor-prioridade: #dc3545;
+}
+
+.recomendacao-card.média {
+  --cor-prioridade: #ffc107;
+}
+
+.recomendacao-card.baixa {
+  --cor-prioridade: #28a745;
+}
+
+/* Pulsação para recomendações urgentes */
+@keyframes pulse {
+  0% { box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3); }
+  50% { box-shadow: 0 8px 25px rgba(220, 53, 69, 0.6); }
+  100% { box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3); }
+}
+
+.recomendacao-card.alta {
+  animation: pulse 2s infinite;
+}
+
+/* Tooltips */
+.tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 1000;
+}
