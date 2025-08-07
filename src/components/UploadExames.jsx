@@ -235,7 +235,7 @@ export default function UploadExames() {
 
             <button 
               type="submit" 
-              disabled={arquivos.length === 0 || uploading}
+              disabled={uploading}
               className="submit-btn"
             >
               {uploading ? (

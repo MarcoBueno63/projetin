@@ -1,579 +1,294 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import ValidatedTextField from './ValidatedTextField';
+import FeedbackSnackbar from './FeedbackSnackbar';
+import { useTranslation } from 'react-i18next';
+import '../i18n';
 import { useNavigate } from 'react-router-dom';
-import './CadastroMedico.css';
+import { UserService } from '../services/userService';
+import './Login.css';
+import Avatar from '@mui/material/Avatar';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function CadastroMedico() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const emailRef = useRef();
   const [formData, setFormData] = useState({
-    nome: '',
-    crm: '',
-    especialidade: '',
-    telefone: '',
-    whatsapp: '',
     email: '',
-    endereco: {
-      rua: '',
-      numero: '',
-      complemento: '',
-      bairro: '',
-      cidade: '',
-      estado: '',
-      pais: 'Brasil'
-    },
-    hospital: '',
-    horarios: [],
-    diasDisponiveis: [],
-    avaliacoes: 0,
-    preco: 0,
-    foto: null,
-    fotoPreview: '',
+    senha: '',
+    nome: '',
+    confirmeSenha: '',
+    cv: '',
     apresentacao: '',
-    qualificacoes: '',
-    credenciais: '',
-    chamada: '',
-    curriculo: null,
-    curriculoNome: ''
+    programas: '',
+    especialidades: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState({ email: '', senha: '', nome: '', confirmeSenha: '', cv: '', apresentacao: '', programas: '', especialidades: '' });
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [mensagem, setMensagem] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const especialidades = [
-    'Cardiologia', 'Dermatologia', 'Endocrinologia', 'Ginecologia',
-    'Neurologia', 'Oftalmologia', 'Ortopedia', 'Pediatria',
-    'Psiquiatria', 'Urologia', 'Gastroenterologia', 'Pneumologia',
-    'Reumatologia', 'Oncologia', 'Anestesiologia', 'Radiologia'
-  ];
-
-  const horariosDisponiveis = [
-    '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
-    '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
-    '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-    '16:00', '16:30', '17:00', '17:30', '18:00', '18:30'
-  ];
-
-  const diasSemana = [
-    'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'
-  ];
-
-  const estados = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
-    'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
-    'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-  ];
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name.includes('endereco.')) {
-      const enderecoField = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        endereco: {
-          ...prev.endereco,
-          [enderecoField]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+  const validateField = (name, value) => {
+    let msg = '';
+    if (name === 'email') {
+      if (!value) msg = t('Campo obrigatório.');
+      else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) msg = t('E-mail inválido.');
     }
+    if (name === 'senha') {
+      if (!value) msg = t('Campo obrigatório.');
+      else if (value.length < 6) msg = t('A senha deve ter pelo menos 6 caracteres!');
+    }
+    if (name === 'nome') {
+      if (!value) msg = t('Campo obrigatório.');
+      else if (value.length < 3) msg = t('Nome deve ter pelo menos 3 caracteres.');
+    }
+    if (name === 'confirmeSenha') {
+      if (!value) msg = t('Campo obrigatório.');
+      else if (value !== formData.senha) msg = t('As senhas não coincidem!');
+    }
+    if (name === 'cv') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    if (name === 'apresentacao') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    if (name === 'programas') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    if (name === 'especialidades') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    return msg;
   };
 
-  const handleCheckboxChange = (e, field) => {
-    const { value, checked } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [field]: checked 
-        ? [...prev[field], value]
-        : prev[field].filter(item => item !== value)
+      [name]: value
+    }));
+    setError(prev => ({
+      ...prev,
+      [name]: validateField(name, value)
     }));
   };
 
-  const handleFotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validar tipo de arquivo
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-      if (!validTypes.includes(file.type)) {
-        setMensagem('❌ Formato de imagem inválido. Use JPG, PNG ou GIF.');
-        return;
-      }
-
-      // Validar tamanho (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        setMensagem('❌ Imagem muito grande. Máximo 2MB.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          foto: file,
-          fotoPreview: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMensagem('');
-
-    try {
-      // Validações
-      if (!formData.nome || !formData.crm || !formData.especialidade) {
-        throw new Error('Por favor, preencha todos os campos obrigatórios.');
-      }
-
-      // Validar CRM (formato básico)
-      const crmRegex = /^\d{4,6}-[A-Z]{2}$/;
-      if (!crmRegex.test(formData.crm)) {
-        throw new Error('CRM deve estar no formato: 12345-SP');
-      }
-
-      // Validar telefone e WhatsApp (formato básico)
-      const phoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
-      if (!phoneRegex.test(formData.telefone)) {
-        throw new Error('Telefone deve estar no formato: (11) 99999-9999');
-      }
-
-      if (!phoneRegex.test(formData.whatsapp)) {
-        throw new Error('WhatsApp deve estar no formato: (11) 99999-9999');
-      }
-
-      // Validar email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        throw new Error('Email inválido.');
-      }
-
-      // Validar endereço
-      if (!formData.endereco.rua || !formData.endereco.numero || 
-          !formData.endereco.bairro || !formData.endereco.cidade || 
-          !formData.endereco.estado) {
-        throw new Error('Por favor, preencha todos os campos do endereço.');
-      }
-
-      // Simular salvamento
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Criar novo médico
-      const novoMedico = {
-        id: Date.now(),
-        ...formData,
-        dataCadastro: new Date().toISOString(),
-        ativo: true
-      };
-
-      // Salvar no localStorage
-      const medicos = JSON.parse(localStorage.getItem('medicos') || '[]');
-      medicos.push(novoMedico);
-      localStorage.setItem('medicos', JSON.stringify(medicos));
-
-      setMensagem('✅ Médico cadastrado com sucesso!');
-      
-      // Limpar formulário após sucesso
-      setTimeout(() => {
-        navigate('/admin/medicos');
-      }, 2000);
-
-    } catch (error) {
-      setMensagem(`❌ Erro: ${error.message}`);
-    } finally {
-      setLoading(false);
+    setIsLoading(true);
+    let valid = true;
+    let newError = { email: '', senha: '', nome: '', confirmeSenha: '', cv: '', apresentacao: '', programas: '', especialidades: '' };
+    Object.keys(formData).forEach((key) => {
+      newError[key] = validateField(key, formData[key]);
+      if (newError[key]) valid = false;
+    });
+    setError(newError);
+    if (!valid) {
+      setSnackbar({ open: true, message: t('Preencha todos os campos corretamente!'), severity: 'error' });
+      setIsLoading(false);
+      return;
     }
+    try {
+      const resultado = await UserService.registrarUsuario({
+        email: formData.email,
+        senha: formData.senha,
+        nome: formData.nome,
+        tipo: 'medico',
+        permissoes: ['medico', 'usuario', 'consultas', 'pacientes', 'prescricoes', 'exames'],
+        cv: formData.cv,
+        apresentacao: formData.apresentacao,
+        programas: formData.programas,
+        especialidades: formData.especialidades
+      });
+      if (resultado.sucesso) {
+        setSnackbar({ open: true, message: t('Médico cadastrado com sucesso! Faça login agora.'), severity: 'success' });
+        setFormData({
+          email: '', senha: '', nome: '', confirmeSenha: '', cv: '', apresentacao: '', programas: '', especialidades: ''
+        });
+        setTimeout(() => navigate('/'), 1500);
+      } else {
+        setSnackbar({ open: true, message: resultado.mensagem, severity: 'error' });
+      }
+    } catch (error) {
+      setSnackbar({ open: true, message: t('Erro interno. Tente novamente.'), severity: 'error' });
+    }
+    setIsLoading(false);
   };
+
+  React.useEffect(() => {
+    if (emailRef.current) emailRef.current.focus();
+  }, []);
 
   return (
-    <div className="cadastro-medico-container">
-      <div className="cadastro-medico-card">
-        <div className="cadastro-header">
-          <button onClick={() => navigate('/admin/dashboard')} className="back-button">
-            ← Voltar
-          </button>
-          <h2>👨‍⚕️ Cadastro de Médico</h2>
+    <div className="login-container">
+      <div className="login-card">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
+          <Avatar sx={{ bgcolor: '#43a047', width: 64, height: 64 }}>
+            <MedicalServicesIcon fontSize="large" />
+          </Avatar>
+          <h2 style={{ marginTop: 8 }}>{t('Cadastro de Médico')}</h2>
         </div>
-
-        <form onSubmit={handleSubmit} className="cadastro-form">
-          {/* Foto do Médico */}
-          <div className="foto-section">
-            <label htmlFor="foto">Foto do Médico:</label>
-            <div className="foto-upload">
-              {formData.fotoPreview ? (
-                <img src={formData.fotoPreview} alt="Preview" className="foto-preview" />
-              ) : (
-                <div className="foto-placeholder">
-                  📷 Clique para adicionar foto
-                </div>
-              )}
-              <input
-                type="file"
-                id="foto"
-                accept="image/*"
-                onChange={handleFotoChange}
-                className="foto-input"
-              />
-            </div>
-          </div>
-
-          {/* Dados Pessoais */}
-          <div className="form-section">
-            <h3>Dados Pessoais</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="nome">Nome Completo: *</label>
-                <input
-                  type="text"
-                  id="nome"
-                  name="nome"
-                  value={formData.nome}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Dr. João Silva"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="crm">CRM: *</label>
-                <input
-                  type="text"
-                  id="crm"
-                  name="crm"
-                  value={formData.crm}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="12345-SP"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="especialidade">Especialidade: *</label>
-                <select
-                  id="especialidade"
-                  name="especialidade"
-                  value={formData.especialidade}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Selecione uma especialidade</option>
-                  {especialidades.map(esp => (
-                    <option key={esp} value={esp}>{esp}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email: *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="medico@hospital.com"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Contatos */}
-          <div className="form-section">
-            <h3>Contatos</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="telefone">Telefone: *</label>
-                <input
-                  type="tel"
-                  id="telefone"
-                  name="telefone"
-                  value={formData.telefone}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="whatsapp">WhatsApp: *</label>
-                <input
-                  type="tel"
-                  id="whatsapp"
-                  name="whatsapp"
-                  value={formData.whatsapp}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Endereço */}
-          <div className="form-section">
-            <h3>Endereço</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="endereco.rua">Rua: *</label>
-                <input
-                  type="text"
-                  id="endereco.rua"
-                  name="endereco.rua"
-                  value={formData.endereco.rua}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Rua das Flores"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endereco.numero">Número: *</label>
-                <input
-                  type="text"
-                  id="endereco.numero"
-                  name="endereco.numero"
-                  value={formData.endereco.numero}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="123"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endereco.complemento">Complemento:</label>
-                <input
-                  type="text"
-                  id="endereco.complemento"
-                  name="endereco.complemento"
-                  value={formData.endereco.complemento}
-                  onChange={handleInputChange}
-                  placeholder="Sala 101"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endereco.bairro">Bairro: *</label>
-                <input
-                  type="text"
-                  id="endereco.bairro"
-                  name="endereco.bairro"
-                  value={formData.endereco.bairro}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Centro"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endereco.cidade">Cidade: *</label>
-                <input
-                  type="text"
-                  id="endereco.cidade"
-                  name="endereco.cidade"
-                  value={formData.endereco.cidade}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="São Paulo"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endereco.estado">Estado: *</label>
-                <select
-                  id="endereco.estado"
-                  name="endereco.estado"
-                  value={formData.endereco.estado}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Selecione um estado</option>
-                  {estados.map(estado => (
-                    <option key={estado} value={estado}>{estado}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endereco.pais">País: *</label>
-                <input
-                  type="text"
-                  id="endereco.pais"
-                  name="endereco.pais"
-                  value={formData.endereco.pais}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Dados Profissionais */}
-          <div className="form-section">
-            <h3>Dados Profissionais</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="hospital">Hospital/Clínica:</label>
-                <input
-                  type="text"
-                  id="hospital"
-                  name="hospital"
-                  value={formData.hospital}
-                  onChange={handleInputChange}
-                  placeholder="Hospital Santa Maria"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="preco">Preço da Consulta (R$):</label>
-                <input
-                  type="number"
-                  id="preco"
-                  name="preco"
-                  value={formData.preco}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  placeholder="250.00"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="credenciais">Credenciais Profissionais:</label>
-                <textarea
-                  id="credenciais"
-                  name="credenciais"
-                  value={formData.credenciais}
-                  onChange={handleInputChange}
-                  placeholder="Ex: RQE, títulos, sociedades, registros, etc."
-                  rows={2}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="curriculo">Currículo (PDF):</label>
-                <input
-                  type="file"
-                  id="curriculo"
-                  name="curriculo"
-                  accept="application/pdf"
-                  onChange={e => {
-                    const file = e.target.files[0];
-                    if (file && file.type === 'application/pdf') {
-                      setFormData(prev => ({
-                        ...prev,
-                        curriculo: file,
-                        curriculoNome: file.name
-                      }));
-                    }
-                  }}
-                />
-                {formData.curriculoNome && (
-                  <span className="curriculo-nome">Arquivo: {formData.curriculoNome}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="chamada">Chamada para Clientes:</label>
-                <input
-                  type="text"
-                  id="chamada"
-                  name="chamada"
-                  value={formData.chamada}
-                  onChange={handleInputChange}
-                  placeholder="Ex: Médico humanizado, especialista em..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="apresentacao">Apresentação:</label>
-                <textarea
-                  id="apresentacao"
-                  name="apresentacao"
-                  value={formData.apresentacao}
-                  onChange={handleInputChange}
-                  placeholder="Fale sobre você, sua experiência, abordagem, etc."
-                  rows={3}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="qualificacoes">Qualificações:</label>
-                <textarea
-                  id="qualificacoes"
-                  name="qualificacoes"
-                  value={formData.qualificacoes}
-                  onChange={handleInputChange}
-                  placeholder="Formação, títulos, cursos, certificações, etc."
-                  rows={3}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Horários de Atendimento */}
-          <div className="form-section">
-            <h3>Horários de Atendimento</h3>
-            <div className="checkbox-group">
-              <label>Horários Disponíveis:</label>
-              <div className="checkbox-grid">
-                {horariosDisponiveis.map(horario => (
-                  <label key={horario} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      value={horario}
-                      checked={formData.horarios.includes(horario)}
-                      onChange={(e) => handleCheckboxChange(e, 'horarios')}
-                    />
-                    {horario}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Dias da Semana */}
-          <div className="form-section">
-            <h3>Dias de Atendimento</h3>
-            <div className="checkbox-group">
-              <label>Dias Disponíveis:</label>
-              <div className="checkbox-grid">
-                {diasSemana.map(dia => (
-                  <label key={dia} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      value={dia}
-                      checked={formData.diasDisponiveis.includes(dia)}
-                      onChange={(e) => handleCheckboxChange(e, 'diasDisponiveis')}
-                    />
-                    {dia.charAt(0).toUpperCase() + dia.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Mensagem */}
-          {mensagem && (
-            <div className={`message ${mensagem.includes('✅') ? 'success' : 'error'}`}>
-              {mensagem}
-            </div>
-          )}
-
-          {/* Botão de envio */}
-          <button 
-            type="submit" 
-            className="submit-button"
-            disabled={loading}
-          >
-            {loading ? 'Cadastrando...' : 'Cadastrar Médico'}
+        <form onSubmit={handleRegister}>
+          <ValidatedTextField
+            label={t('Nome completo')}
+            name="nome"
+            value={formData.nome}
+            onChange={handleChange}
+            error={!!error.nome}
+            helperText={error.nome}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon color="action" />
+                </InputAdornment>
+              )
+            }}
+          />
+          <ValidatedTextField
+            label={t('Currículo (CV)')}
+            name="cv"
+            value={formData.cv}
+            onChange={handleChange}
+            error={!!error.cv}
+            helperText={error.cv}
+            multiline
+            minRows={2}
+          />
+          <ValidatedTextField
+            label={t('Apresentação')}
+            name="apresentacao"
+            value={formData.apresentacao}
+            onChange={handleChange}
+            error={!!error.apresentacao}
+            helperText={error.apresentacao}
+            multiline
+            minRows={2}
+          />
+          <ValidatedTextField
+            label={t('Programas Terapêuticos')}
+            name="programas"
+            value={formData.programas}
+            onChange={handleChange}
+            error={!!error.programas}
+            helperText={error.programas}
+            multiline
+            minRows={2}
+          />
+          <ValidatedTextField
+            label={t('Especialidades')}
+            name="especialidades"
+            value={formData.especialidades}
+            onChange={handleChange}
+            error={!!error.especialidades}
+            helperText={error.especialidades}
+            multiline
+            minRows={1}
+          />
+          <ValidatedTextField
+            label={t('E-mail')}
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={!!error.email}
+            helperText={error.email}
+            type="email"
+            inputRef={emailRef}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon color="action" />
+                </InputAdornment>
+              )
+            }}
+          />
+          <ValidatedTextField
+            label={t('Senha')}
+            name="senha"
+            value={formData.senha}
+            onChange={handleChange}
+            error={!!error.senha}
+            helperText={error.senha}
+            type={showPassword ? 'text' : 'password'}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockOutlinedIcon color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword((show) => !show)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+          <ValidatedTextField
+            label={t('Confirme a senha')}
+            name="confirmeSenha"
+            value={formData.confirmeSenha}
+            onChange={handleChange}
+            error={!!error.confirmeSenha}
+            helperText={error.confirmeSenha}
+            type={showConfirmPassword ? 'text' : 'password'}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockOutlinedIcon color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle confirm password visibility"
+                    onClick={() => setShowConfirmPassword((show) => !show)}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+          <button type="submit" className="login-button" disabled={isLoading} style={{ marginTop: 16, position: 'relative' }}>
+            {isLoading ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={22} color="inherit" style={{ marginRight: 8 }} />
+                {t('Cadastrando...')}
+              </span>
+            ) : (
+              t('Cadastrar')
+            )}
           </button>
         </form>
+        <div className="cadastro-medico-footer">
+          <p>
+            {t('Já é cadastrado?')}{' '}
+            <button type="button" className="link-button" onClick={() => navigate('/')}>{t('Faça login aqui')}</button>
+          </p>
+        </div>
+        <FeedbackSnackbar
+          open={snackbar.open}
+          message={snackbar.message}
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        />
       </div>
     </div>
   );
 }
+

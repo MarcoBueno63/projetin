@@ -23,6 +23,69 @@ body {
   min-height: 100vh;
 }
 
+.login-card, .cadastro-medico-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(67, 160, 71, 0.10), 0 1.5px 6px 0 rgba(126, 87, 194, 0.08);
+  padding: 2.5rem 2rem 2rem 2rem;
+  margin: 2rem auto;
+  max-width: 420px;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+
+.login-card:hover, .cadastro-medico-card:hover {
+  box-shadow: 0 8px 32px 0 rgba(67, 160, 71, 0.18), 0 3px 12px 0 rgba(126, 87, 194, 0.13);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.login-button, .cadastro-medico-button, .link-button, button[type="submit"] {
+  background: linear-gradient(90deg, #43a047 60%, #7e57c2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(67, 160, 71, 0.08);
+  transition: background 0.3s, box-shadow 0.2s, transform 0.2s;
+}
+
+.login-button:hover, .cadastro-medico-button:hover, .link-button:hover, button[type="submit"]:hover {
+  background: linear-gradient(90deg, #388e3c 60%, #5e35b1 100%);
+  box-shadow: 0 4px 16px 0 rgba(67, 160, 71, 0.16);
+  transform: scale(1.03);
+}
+
+.link-button {
+  background: none;
+  color: #1976d2;
+  text-decoration: underline;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0;
+  margin: 0 0.2rem;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.link-button:hover {
+  color: #512da8;
+  background: none;
+  text-decoration: underline;
+  transform: none;
+}
+
+/* Suavidade para inputs */
+input, select, textarea {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #43a047;
+  box-shadow: 0 0 0 2px #43a04722;
+}
+
 /* Utilitários globais */
 .container {
   max-width: 1200px;

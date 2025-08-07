@@ -10,30 +10,12 @@ const AnaliseIA = () => {
   const [progresso, setProgresso] = useState(0);
 
   useEffect(() => {
-    // Verificar pré-requisitos antes de permitir análise
-    const anamneseConcluida = localStorage.getItem('anamneseConcluida') === 'true';
-    const examesUpload = localStorage.getItem('examesUpload') === 'true';
-    
-    if (!anamneseConcluida) {
-      // TODO: Adicionar feedback visual (Snackbar) para "Você precisa completar a anamnese antes de solicitar análise IA."
-      navigate('/anamnese-integrativa');
-      return;
-    }
-    
-    if (!examesUpload) {
-      // TODO: Adicionar feedback visual (Snackbar) para "Você precisa fazer upload dos exames antes de solicitar análise IA."
-      navigate('/exames');
-      return;
-    }
-
     // Carregar dados do usuário
     const currentUser = JSON.parse(localStorage.getItem('usuario'));
     const userEmail = currentUser?.email || 'default';
-    
     const anamnese = JSON.parse(localStorage.getItem('anamneseData') || localStorage.getItem(`anamnese_${userEmail}`) || localStorage.getItem('anamnese') || '{}');
     const exames = JSON.parse(localStorage.getItem(`exames_${userEmail}`) || localStorage.getItem('exames') || '[]');
     const medicamentos = JSON.parse(localStorage.getItem(`medicamentos_${userEmail}`) || localStorage.getItem('medicamentos') || '[]');
-    
     setDadosUsuario({
       anamnese,
       exames,
@@ -207,19 +189,13 @@ const AnaliseIA = () => {
           <h2>📊 Análise de IA</h2>
           <div className="aviso">
             <p>⚠️ Dados insuficientes para análise</p>
-            <p>Complete sua anamnese e envie seus exames para obter uma análise detalhada.</p>
+            <p>Complete sua anamnese para obter uma análise. Exames e medicamentos são opcionais.</p>
             <div className="acoes">
               <button 
                 onClick={() => navigate('/anamnese')}
                 className="btn-primary"
               >
                 Fazer Anamnese
-              </button>
-              <button 
-                onClick={() => navigate('/exames')}
-                className="btn-secondary"
-              >
-                Enviar Exames
               </button>
             </div>
           </div>
@@ -249,14 +225,14 @@ const AnaliseIA = () => {
               </div>
               <div className="dado-item">
                 <span className="icone">📄</span>
-                <span>Exames Médicos</span>
+                <span>Exames Médicos (opcional)</span>
                 <span className={`status ${dadosUsuario.exames?.length > 0 ? 'disponivel' : 'indisponivel'}`}>
                   {dadosUsuario.exames?.length > 0 ? `✅ (${dadosUsuario.exames.length})` : '❌'}
                 </span>
               </div>
               <div className="dado-item">
                 <span className="icone">💊</span>
-                <span>Medicamentos</span>
+                <span>Medicamentos (opcional)</span>
                 <span className={`status ${dadosUsuario.medicamentos?.length > 0 ? 'disponivel' : 'indisponivel'}`}>
                   {dadosUsuario.medicamentos?.length > 0 ? `✅ (${dadosUsuario.medicamentos.length})` : '❌'}
                 </span>
@@ -267,6 +243,7 @@ const AnaliseIA = () => {
           <button 
             onClick={iniciarAnalise}
             className="btn-iniciar-analise"
+            disabled={!dadosUsuario.anamnese}
           >
             <span className="icone">🚀</span>
             Iniciar Análise de IA

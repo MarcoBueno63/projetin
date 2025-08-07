@@ -33,11 +33,15 @@ export default function Login() {
     senha: '',
     tipoUsuario: 'usuario',
     nome: '',
-    confirmeSenha: ''
+    confirmeSenha: '',
+    cv: '',
+    apresentacao: '',
+    programas: '',
+    especialidades: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [error, setError] = useState({ email: '', senha: '', nome: '', confirmeSenha: '' });
+  const [error, setError] = useState({ email: '', senha: '', nome: '', confirmeSenha: '', cv: '', apresentacao: '', programas: '', especialidades: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -70,6 +74,13 @@ export default function Login() {
       tipo: 'medico',
       nome: 'Dr. Médico',
       permissoes: ['medico', 'usuario', 'consultas', 'pacientes']
+    },
+    // Usuários antigos adicionados para compatibilidade
+    'admin@saude.com': {
+      senha: 'admin123',
+      tipo: 'admin',
+      nome: 'Administrador Saúde',
+      permissoes: ['admin', 'usuario', 'cadastros', 'relatorios', 'estatisticas']
     }
   };
 
@@ -91,6 +102,18 @@ export default function Login() {
     if (name === 'confirmeSenha' && isRegistering) {
       if (!value) msg = t('Campo obrigatório.');
       else if (value !== formData.senha) msg = t('As senhas não coincidem!');
+    }
+    if (name === 'cv' && isRegistering && formData.tipoUsuario === 'medico') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    if (name === 'apresentacao' && isRegistering && formData.tipoUsuario === 'medico') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    if (name === 'programas' && isRegistering && formData.tipoUsuario === 'medico') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
+    }
+    if (name === 'especialidades' && isRegistering && formData.tipoUsuario === 'medico') {
+      if (!value) msg = t('Campo obrigatório para médicos.');
     }
     return msg;
   };
@@ -115,7 +138,7 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     let valid = true;
-    let newError = { email: '', senha: '', nome: '', confirmeSenha: '' };
+    let newError = { email: '', senha: '', nome: '', confirmeSenha: '', cv: '', apresentacao: '', programas: '', especialidades: '' };
     Object.keys(formData).forEach((key) => {
       newError[key] = validateField(key, formData[key]);
       if (newError[key]) valid = false;
@@ -133,7 +156,11 @@ export default function Login() {
           senha: formData.senha,
           nome: formData.nome,
           tipo: formData.tipoUsuario,
-          permissoes: getPermissoesPorTipo(formData.tipoUsuario)
+          permissoes: getPermissoesPorTipo(formData.tipoUsuario),
+          cv: formData.cv,
+          apresentacao: formData.apresentacao,
+          programas: formData.programas,
+          especialidades: formData.especialidades
         });
         if (resultado.sucesso) {
           setSnackbar({ open: true, message: t('Usuário cadastrado com sucesso! Faça login agora.'), severity: 'success' });
@@ -143,7 +170,11 @@ export default function Login() {
             senha: '',
             tipoUsuario: 'usuario',
             nome: '',
-            confirmeSenha: ''
+            confirmeSenha: '',
+            cv: '',
+            apresentacao: '',
+            programas: '',
+            especialidades: ''
           });
         } else {
           setSnackbar({ open: true, message: resultado.mensagem, severity: 'error' });
@@ -154,9 +185,31 @@ export default function Login() {
       setIsLoading(false);
       return;
     }
+
+    // Primeiro tenta login de demonstração local
+    const usuarioData = usuariosPredefinidos[formData.email];
+    if (usuarioData && usuarioData.senha === formData.senha) {
+      const dadosUsuario = {
+        email: formData.email,
+        nome: usuarioData.nome,
+        tipo: usuarioData.tipo,
+        permissoes: usuarioData.permissoes,
+        loggedIn: true,
+        loginTime: new Date().toISOString()
+      };
+      if (rememberMe) localStorage.setItem('usuario', JSON.stringify(dadosUsuario));
+      setSnackbar({ open: true, message: t('Login realizado com sucesso!'), severity: 'success' });
+      setTimeout(() => {
+        navigate('/menu');
+      }, 1000);
+      setIsLoading(false);
+      return;
+    }
+
+    // Se não for usuário de demonstração, tenta backend
     try {
       const resultadoLogin = UserService.login(formData.email, formData.senha);
-      if (resultadoLogin.sucesso) {
+      if (resultadoLogin && resultadoLogin.sucesso) {
         setSnackbar({ open: true, message: t('Login realizado com sucesso!'), severity: 'success' });
         if (rememberMe) {
           localStorage.setItem('usuario', JSON.stringify({
@@ -172,24 +225,7 @@ export default function Login() {
           navigate('/menu');
         }, 1000);
       } else {
-        const usuarioData = usuariosPredefinidos[formData.email];
-        if (usuarioData && usuarioData.senha === formData.senha) {
-          const dadosUsuario = {
-            email: formData.email,
-            nome: usuarioData.nome,
-            tipo: usuarioData.tipo,
-            permissoes: usuarioData.permissoes,
-            loggedIn: true,
-            loginTime: new Date().toISOString()
-          };
-          if (rememberMe) localStorage.setItem('usuario', JSON.stringify(dadosUsuario));
-          setSnackbar({ open: true, message: t('Login realizado com sucesso!'), severity: 'success' });
-          setTimeout(() => {
-            navigate('/menu');
-          }, 1000);
-        } else {
-          setSnackbar({ open: true, message: t('Email ou senha incorretos!'), severity: 'error' });
-        }
+        setSnackbar({ open: true, message: t('Email ou senha incorretos!'), severity: 'error' });
       }
     } catch (error) {
       setSnackbar({ open: true, message: t('Erro interno. Tente novamente.'), severity: 'error' });
@@ -224,7 +260,11 @@ export default function Login() {
       senha: userData.senha,
       tipoUsuario: tipoDemo,
       nome: '',
-      confirmeSenha: ''
+      confirmeSenha: '',
+      cv: '',
+      apresentacao: '',
+      programas: '',
+      especialidades: ''
     });
     setIsRegistering(false);
   };
@@ -236,7 +276,11 @@ export default function Login() {
       senha: '',
       tipoUsuario: 'usuario',
       nome: '',
-      confirmeSenha: ''
+      confirmeSenha: '',
+      cv: '',
+      apresentacao: '',
+      programas: '',
+      especialidades: ''
     });
     setMessage('');
   };
@@ -256,21 +300,67 @@ export default function Login() {
         </div>
         <form onSubmit={handleLogin}>
           {isRegistering && (
-            <ValidatedTextField
-              label={t('Nome completo')}
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              error={error.nome}
-              helperText={error.nome}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon color="action" />
-                  </InputAdornment>
-                )
-              }}
-            />
+            <React.Fragment key={formData.tipoUsuario}>
+              <ValidatedTextField
+                label={t('Nome completo')}
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                error={error.nome}
+                helperText={error.nome}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="action" />
+                    </InputAdornment>
+                  )
+                }}
+              />
+              {formData.tipoUsuario === 'medico' && (
+                <React.Fragment key="medico-fields">
+                  <ValidatedTextField
+                    label={t('Currículo (CV)')}
+                    name="cv"
+                    value={formData.cv}
+                    onChange={handleChange}
+                    error={error.cv}
+                    helperText={error.cv}
+                    multiline
+                    minRows={2}
+                  />
+                  <ValidatedTextField
+                    label={t('Apresentação')}
+                    name="apresentacao"
+                    value={formData.apresentacao}
+                    onChange={handleChange}
+                    error={error.apresentacao}
+                    helperText={error.apresentacao}
+                    multiline
+                    minRows={2}
+                  />
+                  <ValidatedTextField
+                    label={t('Programas Terapêuticos')}
+                    name="programas"
+                    value={formData.programas}
+                    onChange={handleChange}
+                    error={error.programas}
+                    helperText={error.programas}
+                    multiline
+                    minRows={2}
+                  />
+                  <ValidatedTextField
+                    label={t('Especialidades')}
+                    name="especialidades"
+                    value={formData.especialidades}
+                    onChange={handleChange}
+                    error={error.especialidades}
+                    helperText={error.especialidades}
+                    multiline
+                    minRows={1}
+                  />
+                </React.Fragment>
+              )}
+            </React.Fragment>
           )}
           <ValidatedTextField
             label={t('E-mail')}
@@ -415,11 +505,18 @@ export default function Login() {
             </button>
           </p>
           {!isRegistering && (
-            <p>
-              <button type="button" className="link-button" onClick={() => setOpenRecDialog(true)}>
-                {t('Esqueci minha senha')}
-              </button>
-            </p>
+            <>
+              <p>
+                <button type="button" className="link-button" onClick={() => setOpenRecDialog(true)}>
+                  {t('Esqueci minha senha')}
+                </button>
+              </p>
+              <p>
+                <button type="button" className="link-button" style={{ color: '#1976d2', fontWeight: 600 }} onClick={() => navigate('/admin/cadastro-medico')}>
+                  Quero ser médico
+                </button>
+              </p>
+            </>
           )}
         </div>
         <Dialog open={openRecDialog} onClose={() => setOpenRecDialog(false)}>

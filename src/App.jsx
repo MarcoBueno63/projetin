@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
-import LoginSimples from './components/LoginSimples';
+// import LoginSimples from './components/LoginSimples';
+import CadastroMedico from './components/CadastroMedico';
 import MenuPrincipal from './components/MenuPrincipal';
 import Cadastro from './components/Cadastro';
 import AnamneseForm from './components/AnamneseForm';
@@ -103,9 +104,10 @@ function App() {
       <Routes>
         <Route path="/teste" element={<TestePage />} />
         <Route path="/teste-permissoes" element={<TestePermissoes />} />
-        <Route path="/" element={<LoginSimples />} />
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/login-simples" element={<LoginSimples />} />
+        {/* <Route path="/login-simples" element={<LoginSimples />} /> */}
+        <Route path="/admin/cadastro-medico" element={<CadastroMedico />} />
         <Route path="/menu" element={<MenuPrincipal />} />
         <Route path="/menu-principal" element={<MenuPrincipal />} />
         <Route path="/cadastro" element={<Cadastro />} />

@@ -41,14 +41,12 @@ const MenuPrincipal = () => {
 
   // Verificar status da anamnese e controlar fluxo
   const verificarStatusFluxo = () => {
-    const anamneseConcluida = localStorage.getItem('anamneseConcluida') === 'true';
-    const examesFeitosUpload = localStorage.getItem('examesUpload') === 'true';
-    
+    // Sempre permitir upload de exames e análise IA no menu
     return {
-      anamneseConcluida,
-      examesFeitosUpload,
-      podeUploadExames: anamneseConcluida,
-      podeAnaliseIA: anamneseConcluida && examesFeitosUpload
+      anamneseConcluida: true,
+      examesFeitosUpload: true,
+      podeUploadExames: true,
+      podeAnaliseIA: true
     };
   };
 
@@ -61,23 +59,7 @@ const MenuPrincipal = () => {
       let novaDescricao = func.descricao;
       
       // Controle para upload de exames
-      if (func.id === 'exames') {
-        if (!status.podeUploadExames) {
-          novoStatus = 'bloqueado';
-          novaDescricao = '🔒 Complete a anamnese primeiro';
-        }
-      }
-      
-      // Controle para análise IA
-      if (func.id === 'analise-ia') {
-        if (!status.anamneseConcluida) {
-          novoStatus = 'bloqueado';
-          novaDescricao = '🔒 Complete a anamnese primeiro';
-        } else if (!status.examesFeitosUpload) {
-          novoStatus = 'bloqueado';
-          novaDescricao = '🔒 Faça upload dos exames primeiro';
-        }
-      }
+      // Nenhum bloqueio para exames ou análise IA
       
       return {
         ...func,

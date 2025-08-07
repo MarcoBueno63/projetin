@@ -262,7 +262,7 @@ ${document.getElementById('relatorio-completo').innerText}
           <div className="historico-grid">
             <div className="historico-item">
               <h4>🔍 Sintomas Reportados</h4>
-              {relatorio.historico.sintomas.length > 0 ? (
+              {Array.isArray(relatorio.historico.sintomas) && relatorio.historico.sintomas.length > 0 ? (
                 <ul>
                   {relatorio.historico.sintomas.map((sintoma, index) => (
                     <li key={index}>{sintoma}</li>
